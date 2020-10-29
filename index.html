@@ -42,9 +42,9 @@
     }).addTo(map);
 
     // // Rat gif
-    // $.getJSON("rodents.geojson", function(data) {
+    // $.getJSON("./Data/rodents.geojson", function(data) {
     //   var ratIcon = L.icon({
-    //     iconUrl: 'rat.gif',
+    //     iconUrl: './Data/rat.gif',
     //     iconSize: [50,40]
     //   });
     //
@@ -55,7 +55,7 @@
     //   }).addTo(map);
     // });
 
-    $.getJSON("neighborhoods.geojson",function(hoodData){
+    $.getJSON("./Data/neighborhoods.geojson",function(hoodData){
       L.geoJson( hoodData, {
         style: function(feature){
           var fillColor, density = feature.properties.density;
@@ -74,7 +74,7 @@
     });
 
     // // Rat png (Pop up and Cluster)
-    // $.getJSON("rodents.geojson", function(data) {
+    // $.getJSON("./Data/rodents.geojson", function(data) {
     //   var ratIcon = L.icon({
     //     iconUrl: 'http://andywoodruff.com/maptime-leaflet/rat.png',
     //     iconSize: [60,50]
@@ -105,7 +105,7 @@
     // });
 
     map.setZoom(12);
-    $.getJSON("rodents.geojson",function(data) {
+    $.getJSON("./Data/rodents.geojson",function(data) {
       var locations = data.features.map(function(rat) {
         // the heatmap plugin wants an array of each location
         var location = rat.geometry.coordinates.reverse();
