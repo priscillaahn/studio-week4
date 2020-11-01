@@ -12,20 +12,51 @@
   <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
   <style>
     body {
-      margin: 0;
-      padding: 0;
+      background-color: #EDEDE6;
     }
 
     #map {
-      /* position: absolute;
-      top: 0;
-      bottom: 0; */
-      height: 640px;
-      width: 100%;
+      width: 1000px;
+      height: 650px;
+    }
+
+    ul {
+     list-style-type: none;
+     padding: 1px;
+     overflow: hidden;
+     background-color: #DCD7CD;
+     font-family: georgia;
+     font-size: 75%;
+     font-weight: bold;
+    }
+
+    li {
+     float: left;
+     border-right: 1px solid #DCD7CD;
+    }
+
+    /* Add a border to all( but not the last) list items */
+    li:last-child {
+     border-right: none;
+    }
+
+    li a {
+     display: block;
+     text-align: left;
+     padding: 15px 17px;
+     text-decoration: none;
+    }
+
+    /* Links will change color when hovered over */
+    li a:hover {
+     background-color: #BFCAD5;
+    }
+
+    .active {
+     background-color: #BFCAD5;
     }
 
     /* Popup styling */
-
     .mapboxgl-popup {
       padding-bottom: 5px;
     }
@@ -77,19 +108,28 @@
 
   <!-- read style .css sheet -->
   <link rel="stylesheet" href="styles.css">
-  
+
 </head>
 
 <body>
-  <ul>
-    <h1>Studio Week 4 <br> SF Food Banks </h1>
-  	<li><a href="index.html" target="_self">Output 1</a></li>
-    <li><a class="active" href="google-sheet.html" target="_self">Output 2</a></li>
-    <li><a href="choose-your-own-adventure.html" target="_self">Output 3</a></li>
-  </ul>
+  <div class="header">
+  <h1 style="color:#404649;">Food Banks in San Francisco</h1>
+  <div class="container">
+    <div class="center">
+      <ul>
+        <li><a href="index.html" target="_self"> </a></li>
+        <li><a class="active" href="google-sheet.html" target="_self"> </a></li>
+        <li><a href="choose-your-own-adventure.html" target="_self"> </a></li>
+      </ul>
+    </div>
+  </div>
+  <div>
   <br>
 
-  <div id='map'></div>
+  <div class="horizontal-center">
+    <div id="map"></div>
+  </div>
+
   <script>
 
     var transformRequest = (url, resourceType) => {
@@ -106,7 +146,7 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoicHJpc2NpbGxhYWhuIiwiYSI6ImNrZ2JlcDczNTAxNXUyc282NGFsN3JxbWcifQ.AeEv5eaed1uUkW1OkXJcAQ'; //Mapbox token
     var map = new mapboxgl.Map({
       container: 'map', // container id
-      style: 'mapbox://styles/mapbox/streets-v11', //stylesheet location
+      style: 'mapbox://styles/priscillaahn/ckgzmdfyx2geo19pdoyd0aeoa', //stylesheet location
       center: [-122.411464, 37.7852299], // starting position
       zoom: 10,// starting zoom
       transformRequest: transformRequest

@@ -12,15 +12,51 @@
     <script src="./Leaflet.heat-0.2.0/leaflet-heat.js"></script>
 
   <style>
-    body, html {
-      height: 100%;
-      width: 100%;
+    body {
+      background-color: #42464F;
     }
 
     #map {
-      width: 100%;
-      height: 640px;
+      width: 1000px;
+      height: 650px;
     }
+
+    ul {
+     list-style-type: none;
+     padding: 1px;
+     overflow: hidden;
+     background-color: #DCD7CD;
+     font-family: georgia;
+     font-size: 75%;
+     font-weight: bold;
+    }
+
+    li {
+     float: left;
+     border-right: 1px solid #DCD7CD;
+    }
+
+    /* Add a border to all( but not the last) list items */
+    li:last-child {
+     border-right: none;
+    }
+
+    li a {
+     display: block;
+     text-align: left;
+     padding: 15px 17px;
+     text-decoration: none;
+    }
+
+    /* Links will change color when hovered over */
+    li a:hover {
+     background-color: #7C9264;
+    }
+
+    .active {
+     background-color: #7C9264;
+    }
+
   </style>
 
   <!-- read style .css sheet -->
@@ -29,24 +65,33 @@
 </head>
 
 <body>
-  <h1>Studio Week 4 <br> Boston Rat Map </h1>
-  <ul>
-  	<li><a class="active" href="index.html" target="_self">Output 1</a></li>
-    <li><a href="google-sheet.html" target="_self">Output 2</a></li>
-    <li><a href="choose-your-own-adventure.html" target="_self">Output 3</a></li>
-  </ul>
+  <div class="header">
+  <h1 style="color:#DDDDDD">Rats in Boston</h1>
+  <div class="container">
+    <div class="center">
+      <ul>
+  	     <li><a class="active" href="index.html" target="_self"> </a></li>
+         <li><a href="google-sheet.html" target="_self"> </a></li>
+         <li><a href="choose-your-own-adventure.html" target="_self"> </a></li>
+       </ul>
+     </div>
+   </div>
+ </div>
   <br>
 
-  <div id="map"></div>
+  <div class="horizontal-center">
+    <div id="map"></div>
+  </div>
 
   <script>
   // initialize the map
-  var map = L.map('map').setView([42.35, -71.08], 13);
+  var map = L.map('map').setView([42.34, -71.08], 11);
 
   // load a tile layer
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
-  	maxZoom: 20,
-  	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 20
   }).addTo(map);
 
     // // Rat gif
@@ -65,14 +110,14 @@
 
     $.getJSON("./Data/neighborhoods.geojson",function(hoodData){
       L.geoJson( hoodData, {
-        style: function(feature){
+        style: function(feature) {
           var fillColor, density = feature.properties.density;
           if ( density > 80 ) fillColor = "#006837";
           else if ( density > 40 ) fillColor = "#31a354";
           else if ( density > 20 ) fillColor = "#78c679";
           else if ( density > 10 ) fillColor = "#c2e699";
           else if ( density > 0 ) fillColor = "#ffffcc";
-          else fillColor = "#f7f7f7";  // no data
+          else fillColor = "#999";  // no data
           return { color: "#999", weight: 1, fillColor: fillColor, fillOpacity: .6 };
         },
         onEachFeature: function( feature, layer ){
@@ -81,50 +126,62 @@
       }).addTo(map);
     });
 
-    // // Rat png (Pop up and Cluster)
-    // $.getJSON("./Data/rodents.geojson", function(data) {
-    //   var ratIcon = L.icon({
-    //     iconUrl: 'http://andywoodruff.com/maptime-leaflet/rat.png',
-    //     iconSize: [60,50]
-    //   });
-    //
-    // //   // Rat png: Pop up
-    // //   L.geoJson(data, {
-    // //     pointToLayer: function(feature, latlng) {
-    // //       var marker = L.marker(latlng, {icon: ratIcon});
-    // //       marker.bindPopup(feature.properties.Location + '<br/>' + feature.properties.OPEN_DT);
-    // //       return marker;
-    // //     }
-    // //   }).addTo(map);
-    // // });
-    //
-    //   // Rat png: Cluster (Plug in and thin out)
-    //   var rodents = L.geoJson(data, {
+    // Rat png (Pop up and Cluster)
+    $.getJSON("./Data/rodents.geojson", function(data) {
+      var ratIcon = L.icon({
+        iconUrl: 'http://andywoodruff.com/maptime-leaflet/rat.png',
+        iconSize: [60,50]
+      });
+
+    //   // Rat png: Pop up
+    //   L.geoJson(data, {
     //     pointToLayer: function(feature, latlng) {
     //       var marker = L.marker(latlng, {icon: ratIcon});
     //       marker.bindPopup(feature.properties.Location + '<br/>' + feature.properties.OPEN_DT);
     //       return marker;
     //     }
-    //   });
-    //
-    //   var clusters = L.markerClusterGroup();
-    //   clusters.addLayer(rodents);
-    //   map.addLayer(clusters);
+    //   }).addTo(map);
     // });
 
-    map.setZoom(12);
-    $.getJSON("./Data/rodents.geojson",function(data) {
-      var locations = data.features.map(function(rat) {
-        // the heatmap plugin wants an array of each location
-        var location = rat.geometry.coordinates.reverse();
-        location.push(0.5);
-        return location; // e.g. [50.5, 30.5, 0.2], // lat, lng, intensity
+      // Rat png: Cluster (Plug in and thin out)
+      var rodents = L.geoJson(data, {
+        pointToLayer: function(feature, latlng) {
+          var marker = L.marker(latlng, {icon: ratIcon});
+          marker.bindPopup(feature.properties.Location + '<br/>' + feature.properties.OPEN_DT);
+          return marker;
+        }
       });
 
-      var heat = L.heatLayer(locations, { radius: 35 });
-      map.addLayer(heat);
+      var clusters = L.markerClusterGroup();
+      clusters.addLayer(rodents);
+      map.addLayer(clusters);
     });
 
+    // map.setZoom(12);
+    // $.getJSON("./Data/rodents.geojson",function(data) {
+    //   var locations = data.features.map(function(rat) {
+    //     // the heatmap plugin wants an array of each location
+    //     var location = rat.geometry.coordinates.reverse();
+    //     location.push(0.5);
+    //     return location; // e.g. [50.5, 30.5, 0.2], // lat, lng, intensity
+    //   });
+    //
+    //   var heat = L.heatLayer(locations, {
+    //     radius: 35,
+    //     gradient: {
+    //       '0.1' : '#f5f2e9',
+  	//       '0.2' : '#e8d59e',
+  	//       '0.3' : '#e8d59e',
+  	//       '0.4' : '#FFBF00',
+  	//       '0.5' : '#DBA901',
+  	//       '0.6' : '#DF3A01',
+  	//       '0.7' : '#B40404',
+  	//       '0.8' : '#8A0808',
+  	//       '0.9' : '#610B0B',
+  	//       '1.0' :'#3B0B0B'}
+    //     });
+    //     map.addLayer(heat);
+    //   });
   </script>
 
 </body>

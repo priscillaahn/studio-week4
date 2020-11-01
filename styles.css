@@ -1,34 +1,44 @@
-ul {
- list-style-type: none;
- margin: 1px;
- padding: 1px;
- overflow: hidden;
- background-color: white;
+/* Font */
+h1 {
+  text-align: center;
+  color: white;
+  font-family: georgia;
+  font-size: 300%;
+  padding-top: 20px;
 }
 
-li {
- float: left;
- border-right: 2px solid white;
+h2 {
+  text-align: center;
+  color: white;
+  font-family: georgia;
+  font-size: 150%;
 }
 
-/* Add a border to all( but not the last) list items */
-li:last-child {
- border-right: none;
+p {
+  text-align: center;
+  color: white;
+  font-family: georgia;
+  font-size: 80%;
 }
 
-li a {
- display: block;
- color: black;
- text-align: left;
- padding: 15px 17px;
- text-decoration: none;
+/* Center */
+.container {
+  height: 100px;
+  position: relative;
 }
 
-/* Links will change color when hovered over */
-li a:hover {
- background-color: #a09f9f;
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
 }
 
-.active {
- background-color: #a09f9f;
+.horizontal-center {
+  margin: auto;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }

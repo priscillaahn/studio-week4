@@ -3,21 +3,240 @@
 
   <head>
 
-  </head>
+    <head>
+      <meta charset='utf-8' />
+      <title></title>
+      <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+      <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
+      <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet" />
+      <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
+      <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+      <style>
+        body {
+          background-color: #EFE3CA;
+        }
 
-  <!-- read style .css sheet -->
-  <link rel="stylesheet" href="styles.css">
+        #map {
+          height: 650px;
+          width: 1000px;
+        }
+
+        ul {
+         list-style-type: none;
+         padding: 1px;
+         overflow: hidden;
+         background-color: #DCD7CD;
+         font-family: georgia;
+         font-size: 75%;
+         font-weight: bold;
+        }
+
+        li {
+         float: left;
+         border-right: 1px solid #DCD7CD;
+        }
+
+        /* Add a border to all( but not the last) list items */
+        li:last-child {
+         border-right: none;
+        }
+
+        li a {
+         display: block;
+         text-align: left;
+         padding: 15px 17px;
+         text-decoration: none;
+        }
+
+        /* Links will change color when hovered over */
+        li a:hover {
+         background-color: #D14545;
+        }
+
+        .active {
+         background-color: #D14545;
+        }
+
+        /* Popup styling */
+        .mapboxgl-popup {
+          padding-bottom: 5px;
+        }
+
+        .mapboxgl-popup-close-button {
+          display: none;
+        }
+
+        .mapboxgl-popup-content {
+          font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', Sans-serif;
+          padding: 0;
+          width: 250px;
+        }
+
+        .mapboxgl-popup-content-wrapper {
+          padding: 1%;
+        }
+
+        .mapboxgl-popup-content h3 {
+          background: rgb(61, 59, 59);
+          text-align: center;
+          color: #fff;
+          margin: 0;
+          display: block;
+          padding: 15px;
+          font-weight: 700;
+          margin-top: -5px;
+        }
+
+        .mapboxgl-popup-content h4 {
+          margin: 0;
+          display: block;
+          padding: 10px 3px 10px 10px;
+          font-weight: 400;
+        }
+
+        .mapboxgl-container {
+          cursor: pointer;
+        }
+
+        .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
+          margin-top: 3px;
+        }
+
+        .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
+          border-bottom-color: rgb(61, 59, 59);
+        }
+      </style>
+
+      <!-- read style .css sheet -->
+      <link rel="stylesheet" href="styles.css">
+
+    </head>
+
+    <body>
+      <div class="header">
+      <h1 style="color:#1F2477;">Restaurants in Providence, RI</h1>
+      <div class="container">
+        <div class="center">
+          <ul>
+      	     <li><a href="index.html" target="_self"> </a></li>
+             <li><a href="google-sheet.html" target="_self"> </a></li>
+             <li><a class="active" href="choose-your-own-adventure.html" target="_self"> </a></li>
+           </ul>
+         </div>
+       </div>
+      </div>
+      <br>
+
+      <div class="horizontal-center">
+        <div id="map"></div>
+      </div>
+
+      <script>
+
+        var transformRequest = (url, resourceType) => {
+          var isMapboxRequest =
+            url.slice(8, 22) === "api.mapbox.com" ||
+            url.slice(10, 26) === "tiles.mapbox.com";
+          return {
+            url: isMapboxRequest
+              ? url.replace("?", "?pluginName=sheetMapper&")
+              : url
+          };
+        };
+        //YOUR TURN: add your Mapbox token
+        mapboxgl.accessToken = 'pk.eyJ1IjoicHJpc2NpbGxhYWhuIiwiYSI6ImNrZ2JlcDczNTAxNXUyc282NGFsN3JxbWcifQ.AeEv5eaed1uUkW1OkXJcAQ'; //Mapbox token
+        var map = new mapboxgl.Map({
+          container: 'map', // container id
+          style: 'mapbox://styles/priscillaahn/ckgzimh1e1kda1cupsqvhte0b', //stylesheet location
+          // style: 'mapbox://styles/mapbox/streets-v11',
+          center: [-71.400540, 41.827263], // starting position
+          zoom: 10,// starting zoom
+          transformRequest: transformRequest
+        });
+
+        $(document).ready(function () {
+          $.ajax({
+            type: "GET",
+            //YOUR TURN: Replace with csv export link
+            url: 'https://docs.google.com/spreadsheets/d/1xIv9zXIUmsXvN89iPCZsB1-CsZC2KxRdyZBSPbDNAW4/gviz/tq?tqx=out:csv&sheet=Sheet1',
+            dataType: "text",
+            success: function (csvData) { makeGeoJSON(csvData); }
+          });
+
+          function makeGeoJSON(csvData) {
+            csv2geojson.csv2geojson(csvData, {
+              latfield: 'Latitude',
+              lonfield: 'Longitude',
+              delimiter: ','
+            }, function (err, data) {
+              map.on('load', function () {
+
+                //Add the the layer to the map
+                map.addLayer({
+                  'id': 'csvData',
+                  'type': 'symbol',
+                  'source': {
+                    'type': 'geojson',
+                    'data': data
+                  },
+                  'layout': {
+                    'icon-image': './Data/star-15.svg',
+                    'icon-size': 2
+                  }
+                  // 'paint': {
+                  //   'circle-radius': 5,
+                  //   'circle-color': "purple"
+                  // }
+                });
 
 
-  <body>
-    <ul>
-      <h1>Studio Week 4 <br> Choose your own adventure! </h1>
-    	<li><a href="index.html" target="_self">Output 1</a></li>
-      <li><a href="google-sheet.html" target="_self">Output 2</a></li>
-      <li><a class="active" href="choose-your-own-adventure.html" target="_self">Output 3</a></li>
-    </ul>
-    <br>
+                // When a click event occurs on a feature in the csvData layer, open a popup at the
+                // location of the feature, with description HTML from its properties.
+                map.on('click', 'csvData', function (e) {
+                  var coordinates = e.features[0].geometry.coordinates.slice();
 
-  </body>
+                  //set popup text
+                  //You can adjust the values of the popup to match the headers of your CSV.
+                  // For example: e.features[0].properties.Name is retrieving information from the field Name in the original CSV.
+                  var description = `<h3>` + e.features[0].properties.Name + `</h3>` + `<h4>` + `<b>` + `Address: ` + `</b>` + e.features[0].properties.Address + `</h4>` + `<h4>` + `<b>` + `Phone: ` + `</b>` + e.features[0].properties.Phone + `</h4>`;
+
+                  // Ensure that if the map is zoomed out such that multiple
+                  // copies of the feature are visible, the popup appears
+                  // over the copy being pointed to.
+                  while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                  }
+
+                  //add Popup to map
+
+                  new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(description)
+                    .addTo(map);
+                });
+
+                // Change the cursor to a pointer when the mouse is over the places layer.
+                map.on('mouseenter', 'csvData', function () {
+                  map.getCanvas().style.cursor = 'pointer';
+                });
+
+                // Change it back to a pointer when it leaves.
+                map.on('mouseleave', 'places', function () {
+                  map.getCanvas().style.cursor = '';
+                });
+
+                var bbox = turf.bbox(data);
+                map.fitBounds(bbox, { padding: 50 });
+
+              });
+
+            });
+          };
+        });
+
+      </script>
+
+    </body>
 
 </html>
